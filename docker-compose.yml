@@ -1,0 +1,42 @@
+services:
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sdv-sandbox:latest
+    container_name: sdv-vecu-sandbox
+    environment:
+      VSOMEIP_CONFIGURATION: /workspace/config/vsomeipLocal.json
+    stdin_open: true
+    tty: true
+
+  unit-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sdv-sandbox:latest
+    container_name: sdv-vecu-unit-tests
+    profiles: ["test"]
+    environment:
+      VSOMEIP_CONFIGURATION: /workspace/config/vsomeipLocal.json
+    entrypoint:
+      - ctest
+      - --test-dir
+      - /workspace/build
+      - --output-on-failure
+
+  ci-harness:
+    image: sdv-sandbox:latest
+    container_name: sdv-vecu-ci-harness
+    profiles: ["ci"]
+    environment:
+      VSOMEIP_CONFIGURATION: /workspace/config/vsomeipLocal.json
+    entrypoint: ["/workspace/scripts/runCiHarness.sh"]
+
+  can-ci-harness:
+    image: sdv-sandbox:latest
+    container_name: sdv-vecu-can-ci
+    profiles: ["ci"]
+    environment:
+      VSOMEIP_CONFIGURATION: /workspace/config/vsomeipCanBridge.json
+    entrypoint: ["/workspace/scripts/runCanCiHarness.sh"]

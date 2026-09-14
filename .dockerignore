@@ -1,0 +1,10 @@
+evidence/
+.git
+.gitignore
+.gitattributes
+**/.vscode/
+**/.idea/
+**/build/
+**/cmake-build-*/
+**/out/
+*.md

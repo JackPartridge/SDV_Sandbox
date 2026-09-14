@@ -1,0 +1,56 @@
+{
+  "unicast": "127.0.0.1",
+  "logging": {
+    "level": "error",
+    "console": "false",
+    "file": {
+      "enable": "false",
+      "path": "/tmp/vsomeip-can.log"
+    },
+    "dlt": "false"
+  },
+  "applications": [
+    {
+      "name": "canGateway",
+      "id": "0x2201"
+    },
+    {
+      "name": "canSubscriber",
+      "id": "0x2202"
+    }
+  ],
+  "services": [
+    {
+      "service": "0x2345",
+      "instance": "0x6789",
+      "unreliable": "30519",
+      "events": [
+        {
+          "event": "0x9001",
+          "is_field": "true",
+          "update-cycle": 0
+        }
+      ],
+      "eventgroups": [
+        {
+          "eventgroup": "0x5566",
+          "events": ["0x9001"]
+        }
+      ]
+    }
+  ],
+  "routing": "canGateway",
+  "service-discovery": {
+    "enable": "true",
+    "multicast": "224.244.224.245",
+    "port": "30491",
+    "protocol": "udp",
+    "initial_delay_min": "10",
+    "initial_delay_max": "100",
+    "repetitions_base_delay": "200",
+    "repetitions_max": "3",
+    "ttl": "3",
+    "cyclic_offer_delay": "2000",
+    "request_response_delay": "1500"
+  }
+}

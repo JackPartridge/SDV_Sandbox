@@ -1,0 +1,6 @@
+{
+  "payloadKind": "telemetry",
+  "minFrames": 5,
+  "timeoutSeconds": 20,
+  "requireMonotonicSequence": true
+}

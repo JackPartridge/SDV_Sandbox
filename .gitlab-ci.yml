@@ -1,0 +1,54 @@
+stages:
+  - build
+  - test
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  SANDBOX_IMAGE: "sdv-sandbox:${CI_COMMIT_SHORT_SHA}"
+
+.docker_dind:
+  image: docker:27
+  services:
+    - name: docker:27-dind
+      alias: docker
+  before_script:
+    - docker info
+
+build-sandbox:
+  extends: .docker_dind
+  stage: build
+  script:
+    - docker build -t "${SANDBOX_IMAGE}" -t sdv-sandbox:latest .
+    - docker save sdv-sandbox:latest -o sdv-sandbox-image.tar
+  artifacts:
+    name: "sdv-sandbox-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - sdv-sandbox-image.tar
+    expire_in: 1 day
+
+unit-tests:
+  extends: .docker_dind
+  stage: test
+  needs:
+    - build-sandbox
+  script:
+    - docker load -i sdv-sandbox-image.tar
+    - docker run --rm sdv-sandbox:latest ctest --test-dir /workspace/build --output-on-failure
+
+telemetry-integration:
+  extends: .docker_dind
+  stage: test
+  needs:
+    - build-sandbox
+  script:
+    - docker load -i sdv-sandbox-image.tar
+    - docker run --rm sdv-sandbox:latest /workspace/scripts/runCiHarness.sh
+
+can-bridge-integration:
+  extends: .docker_dind
+  stage: test
+  needs:
+    - build-sandbox
+  script:
+    - docker load -i sdv-sandbox-image.tar
+    - docker run --rm sdv-sandbox:latest /workspace/scripts/runCanCiHarness.sh

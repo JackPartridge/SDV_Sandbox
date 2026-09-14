@@ -1,0 +1,6 @@
+{
+  "payloadKind": "vehicleSignal",
+  "minFrames": 8,
+  "timeoutSeconds": 15,
+  "requireMonotonicSequence": true
+}

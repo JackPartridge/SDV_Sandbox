@@ -1,0 +1,11 @@
+{
+  "applicationName": "canSubscriber",
+  "vsomeipConfiguration": "/workspace/config/vsomeipCanBridge.json",
+  "service": {
+    "serviceId": "0x2345",
+    "instanceId": "0x6789",
+    "eventId": "0x9001",
+    "eventGroupId": "0x5566",
+    "methodIds": []
+  }
+}
