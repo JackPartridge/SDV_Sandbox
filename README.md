@@ -2,7 +2,11 @@
 
 Local SOME/IP publisher/subscriber sandbox for Windows developers. Run a POSIX vECU environment in Docker/WSL2 without waiting on cloud CI runners.
 
+**Repo:** https://github.com/JackPartridge/SDV_Sandbox (private)
+
 **New here?** Start with [aboutThisProject.md](aboutThisProject.md) for a plain-English explanation. This README is the practical “how to run it” guide.
+
+**Sibling project:** [DigitalTwinDashboard](https://github.com/JackPartridge/DigitalTwinDashboard) — browser UI over the same SOME/IP telemetry (controls, alerts, modern shell).
 
 ## Using the SDK (`vecu_sdk`)
 
@@ -19,13 +23,16 @@ publisher.start(*config);
 publisher.publish(myBytes);
 ```
 
-Or keep the defaults:
+Or keep the defaults (sensor telemetry service `0x1234` / `0x5678`):
 
 ```cpp
 vecu::VecuSubscriber subscriber;
 subscriber.start([](const std::vector<std::uint8_t>& payload) {
   // handle bytes
 });
+subscriber.requestSetIntervalMs(250);
+subscriber.requestResetSequence();
+subscriber.requestSetStreaming(false);
 ```
 
 Override paths with `--service-config <file>` or `VECU_SERVICE_CONFIG`.
@@ -44,6 +51,8 @@ Logging is quiet by default. Pass `--verbose` / `-v` or set `VECU_VERBOSE=1` for
 ```bash
 docker compose up --build
 ```
+
+Publisher offers host/container hardware telemetry (CPU, memory, load, swap, network, process count, temperature when exposed). Subscriber consumes it over SOME/IP.
 
 ## CAN → SOME/IP gateway
 
@@ -96,11 +105,13 @@ Windows host
 
 | Component | Role |
 |-----------|------|
-| `sensorPublisher` | Host hardware telemetry over SOME/IP |
+| `sensorPublisher` | Host/container hardware telemetry over SOME/IP (+ method controls) |
 | `canGateway` | CAN simulator → decode → SOME/IP vehicle signals |
 | `ciContractHarness` | Headless contract subscriber (exit 0/1) |
 | `vecu_sdk` | Shared façade + JSON service config loader |
 | `sdvCommon` | Telemetry, CAN decode, vehicle-signal serialisation |
+
+Telemetry wire format is **48 bytes** little-endian (`TelemetryFrame`). Vehicle signals are **28 bytes** (`VehicleSignalFrame`).
 
 ## Project layout
 
@@ -108,9 +119,12 @@ Windows host
 config/services/     JSON SOME/IP topology (no recompile)
 config/contracts/    CI validation contracts
 config/              vsomeip routing JSON
+src/publisher/       hardware telemetry vECU
+src/subscriber/      classic SOME/IP consumer
 src/canGateway/      CAN→SOME/IP microservice
 src/ciHarness/       headless integration harness
 src/sdk/             vecu_sdk + service config parsing
 src/common/          CAN decoder, telemetry, collectors
 scripts/             sandbox, CAN demo, CI harness runners
+.gitlab-ci.yml       GitLab pipeline (DinD)
 ```
