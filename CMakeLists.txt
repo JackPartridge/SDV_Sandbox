@@ -8,6 +8,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 enable_testing()
 
+if(DEFINED ENV{VECU_VSOMEIP_PREFIX} AND NOT CMAKE_PREFIX_PATH)
+  list(APPEND CMAKE_PREFIX_PATH "$ENV{VECU_VSOMEIP_PREFIX}")
+endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vsomeip-prefix")
+  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/vsomeip-prefix")
+endif()
+
 find_package(vsomeip3 REQUIRED)
 
 add_library(sdvCommon
@@ -18,6 +25,7 @@ add_library(sdvCommon
   src/common/canFrame.cpp
   src/common/canBusSimulator.cpp
   src/common/vehicleSignalFrame.cpp
+  src/common/platformPaths.cpp
 )
 target_include_directories(sdvCommon PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/common")
 
@@ -37,6 +45,9 @@ target_link_libraries(vecu_sdk
     vsomeip3
     sdvCommon
 )
+if(WIN32)
+  target_link_libraries(vecu_sdk PRIVATE ws2_32)
+endif()
 target_compile_definitions(vecu_sdk
   PRIVATE
     VECU_SDK_BUILD
@@ -59,6 +70,9 @@ add_executable(sensorPublisher
 )
 target_include_directories(sensorPublisher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(sensorPublisher PRIVATE sdvCommon vsomeip3)
+if(WIN32)
+  target_link_libraries(sensorPublisher PRIVATE ws2_32)
+endif()
 
 add_executable(sensorSubscriber
   src/subscriber/main.cpp
@@ -66,23 +80,35 @@ add_executable(sensorSubscriber
 )
 target_include_directories(sensorSubscriber PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(sensorSubscriber PRIVATE sdvCommon vsomeip3)
+if(WIN32)
+  target_link_libraries(sensorSubscriber PRIVATE ws2_32)
+endif()
 
 add_executable(canGateway
   src/canGateway/main.cpp
 )
 target_include_directories(canGateway PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/common")
 target_link_libraries(canGateway PRIVATE vecu_sdk sdvCommon)
+if(WIN32)
+  target_link_libraries(canGateway PRIVATE ws2_32)
+endif()
 
 add_executable(ciContractHarness
   src/ciHarness/main.cpp
 )
 target_include_directories(ciContractHarness PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/common")
 target_link_libraries(ciContractHarness PRIVATE vecu_sdk sdvCommon)
+if(WIN32)
+  target_link_libraries(ciContractHarness PRIVATE ws2_32)
+endif()
 
 add_executable(exampleFetcher
   examples/example_fetcher.cpp
 )
 target_link_libraries(exampleFetcher PRIVATE vecu_sdk)
+if(WIN32)
+  target_link_libraries(exampleFetcher PRIVATE ws2_32)
+endif()
 
 set(_vecu_runtime_targets canGateway ciContractHarness exampleFetcher)
 foreach(_target IN LISTS _vecu_runtime_targets)
@@ -109,6 +135,9 @@ add_executable(sdvUnitTests
   tests/vecuServiceConfigTests.cpp
 )
 target_link_libraries(sdvUnitTests PRIVATE sdvCommon vecu_sdk GTest::gtest_main)
+if(WIN32)
+  target_link_libraries(sdvUnitTests PRIVATE ws2_32)
+endif()
 set_target_properties(sdvUnitTests PROPERTIES
   BUILD_RPATH "$ORIGIN"
   INSTALL_RPATH "$ORIGIN"

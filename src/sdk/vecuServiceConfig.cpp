@@ -1,5 +1,6 @@
 #include "vecuServiceConfig.hpp"
 
+#include "../common/platformPaths.hpp"
 #include "../common/serviceIds.hpp"
 
 #include <cctype>
@@ -157,7 +158,8 @@ auto extractMethodIds(const std::string& serviceObject) -> std::vector<std::uint
 }  // namespace
 
 auto loadServiceConfig(const std::string& path) -> std::optional<VecuServiceConfig> {
-  std::ifstream input{path};
+  const auto resolvedPath = sdv::resolveConfigPath(path);
+  std::ifstream input{resolvedPath};
   if (!input) {
     return std::nullopt;
   }
@@ -173,6 +175,9 @@ auto loadServiceConfig(const std::string& path) -> std::optional<VecuServiceConf
   VecuServiceConfig config;
   config.applicationName = extractString(text, "applicationName").value_or("");
   config.vsomeipConfiguration = extractString(text, "vsomeipConfiguration").value_or("");
+  if (!config.vsomeipConfiguration.empty()) {
+    config.vsomeipConfiguration = sdv::resolveConfigPath(config.vsomeipConfiguration);
+  }
   config.serviceId = extractU16(*serviceObject, "serviceId").value_or(0);
   config.instanceId = extractU16(*serviceObject, "instanceId").value_or(0);
   config.eventId = extractU16(*serviceObject, "eventId").value_or(0);
@@ -190,13 +195,13 @@ auto resolveServiceConfigPath(int argc, char** argv, const char* defaultPath) ->
   for (int index = 1; index + 1 < argc; ++index) {
     const std::string argument{argv[index]};
     if (argument == "--service-config" || argument == "--config") {
-      return argv[index + 1];
+      return sdv::resolveConfigPath(argv[index + 1]);
     }
   }
-  if (const char* fromEnv = std::getenv("VECU_SERVICE_CONFIG"); fromEnv != nullptr) {
-    return fromEnv;
+  if (const auto fromEnv = sdv::getEnvironmentVariable("VECU_SERVICE_CONFIG"); !fromEnv.empty()) {
+    return sdv::resolveConfigPath(fromEnv);
   }
-  return defaultPath;
+  return sdv::resolveConfigPath(defaultPath);
 }
 
 auto defaultSensorPublisherConfig() -> VecuServiceConfig {
@@ -212,7 +217,7 @@ auto defaultSensorPublisherConfig() -> VecuServiceConfig {
               sdv::ids::resetSequenceMethodId,
               sdv::ids::setStreamingMethodId,
           },
-      .vsomeipConfiguration = "/workspace/config/vsomeipLocal.json",
+      .vsomeipConfiguration = sdv::resolveConfigPath("config/vsomeipLocal.json"),
   };
 }
 
@@ -230,7 +235,7 @@ auto defaultCanGatewayConfig() -> VecuServiceConfig {
       .eventId = 0x9001,
       .eventGroupId = 0x5566,
       .methodIds = {},
-      .vsomeipConfiguration = "/workspace/config/vsomeipCanBridge.json",
+      .vsomeipConfiguration = sdv::resolveConfigPath("config/vsomeipCanBridge.json"),
   };
 }
 

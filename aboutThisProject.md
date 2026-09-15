@@ -17,7 +17,7 @@ This project lets a developer on a Windows laptop run a small, realistic **virtu
 
 Think of a modern car as a network of small computers (ECUs). Software in those computers does not only “call a function”; it often **finds a service**, **subscribes to data**, and **receives updates** over an automotive middleware protocol called **SOME/IP**.
 
-This repository is a **local sandbox** that recreates a tiny slice of that world:
+This repository is a **local sandbox** that recreates a tiny slice of that world — either in **Docker** or **natively on Windows with MinGW** when Docker is unavailable:
 
 | Piece | Plain meaning |
 |--------|----------------|

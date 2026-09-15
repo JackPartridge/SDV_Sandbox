@@ -1,6 +1,7 @@
 #include "vecu_sdk.hpp"
 
 #include "../common/consoleLog.hpp"
+#include "../common/platformPaths.hpp"
 #include "../common/serviceIds.hpp"
 
 #include <atomic>
@@ -21,27 +22,23 @@ namespace vecu {
 namespace {
 
 constexpr auto offerWaitTimeout = std::chrono::seconds{5};
-constexpr char quietConfigPath[]{"/workspace/config/vsomeipLocal.json"};
-constexpr char verboseConfigPath[]{"/workspace/config/vsomeipVerbose.json"};
 
 auto envFlagEnabled(const char* name) -> bool {
-  const char* value = std::getenv(name);
-  if (value == nullptr) {
+  const auto value = sdv::getEnvironmentVariable(name);
+  if (value.empty()) {
     return false;
   }
-  return std::strcmp(value, "1") == 0
-      || std::strcmp(value, "true") == 0
-      || std::strcmp(value, "TRUE") == 0
-      || std::strcmp(value, "yes") == 0;
+  return value == "1" || value == "true" || value == "TRUE" || value == "yes";
 }
 
 auto applyVsomeipConfiguration(const VecuServiceConfig& config, bool verboseLogging) -> void {
   if (!config.vsomeipConfiguration.empty()) {
-    setenv("VSOMEIP_CONFIGURATION", config.vsomeipConfiguration.c_str(), 1);
+    sdv::setEnvironmentVariable(
+        "VSOMEIP_CONFIGURATION",
+        sdv::resolveConfigPath(config.vsomeipConfiguration));
     return;
   }
-  const char* selected = verboseLogging ? verboseConfigPath : quietConfigPath;
-  setenv("VSOMEIP_CONFIGURATION", selected, 1);
+  sdv::setEnvironmentVariable("VSOMEIP_CONFIGURATION", sdv::defaultVsomeipConfigPath(verboseLogging));
 }
 
 auto resolveVerbose(bool verboseLogging) -> bool {

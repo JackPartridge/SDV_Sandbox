@@ -26,7 +26,7 @@ auto main(int argc, char** argv) -> int {
   const auto configPath = vecu::resolveServiceConfigPath(
       argc,
       argv,
-      "/workspace/config/services/canGateway.json");
+      "config/services/canGateway.json");
 
   auto config = vecu::loadServiceConfig(configPath);
   if (!config.has_value()) {

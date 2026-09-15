@@ -1,6 +1,7 @@
 build/
 cmake-build-*/
 out/
+deps/
 .vs/
 .vscode/
 .idea/
@@ -11,6 +12,7 @@ out/
 *.so
 *.so.*
 *.dylib
+*.dll
 *.exe
 *.out
 *.log

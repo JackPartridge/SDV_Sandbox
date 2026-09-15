@@ -1,6 +1,6 @@
 {
   "applicationName": "sensorPublisher",
-  "vsomeipConfiguration": "/workspace/config/vsomeipLocal.json",
+  "vsomeipConfiguration": "config/vsomeipLocal.json",
   "service": {
     "serviceId": "0x1234",
     "instanceId": "0x5678",

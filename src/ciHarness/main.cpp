@@ -1,5 +1,6 @@
 #include "vecu_sdk.hpp"
 
+#include "platformPaths.hpp"
 #include "telemetryFrame.hpp"
 #include "vehicleSignalFrame.hpp"
 
@@ -158,16 +159,16 @@ auto validatePayload(
 
 auto main(int argc, char** argv) -> int {
   const bool verbose = vecu::wantsVerboseLoggingFromArgs(argc, argv);
-  const auto serviceConfigPath = resolveArgValue(
+  const auto serviceConfigPath = sdv::resolveConfigPath(resolveArgValue(
       argc,
       argv,
       "--service-config",
-      "/workspace/config/services/sensorSubscriber.json");
-  const auto contractPath = resolveArgValue(
+      "config/services/sensorSubscriber.json"));
+  const auto contractPath = sdv::resolveConfigPath(resolveArgValue(
       argc,
       argv,
       "--contract",
-      "/workspace/config/contracts/telemetryContract.json");
+      "config/contracts/telemetryContract.json"));
 
   auto serviceConfig = vecu::loadServiceConfig(serviceConfigPath);
   if (!serviceConfig.has_value()) {

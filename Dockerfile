@@ -44,7 +44,10 @@ RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
                /workspace/scripts/runDemo.sh \
                /workspace/scripts/runCiHarness.sh \
                /workspace/scripts/runCanCiHarness.sh \
-               /workspace/scripts/runCanGateway.sh
+               /workspace/scripts/runCanGateway.sh \
+               /workspace/scripts/buildVsomeipMingw.sh \
+               /workspace/scripts/buildNativeMingw.sh \
+               /workspace/scripts/runNativeSandbox.sh
 
 LABEL org.opencontainers.image.title="SDV vECU Sandbox" \
       org.opencontainers.image.description="Local SOME/IP publisher/subscriber sandbox for shift-left SDV testing"
